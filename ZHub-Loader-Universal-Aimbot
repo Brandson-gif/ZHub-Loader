@@ -1,0 +1,399 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ZHubMenu"
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
+
+-- Create Main Frame with modern styling
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 600)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -300)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+mainFrame.BackgroundTransparency = 0.05
+mainFrame.Parent = screenGui
+
+-- Add corner rounding
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 15)
+corner.Parent = mainFrame
+
+-- Add subtle shadow effect
+local shadow = Instance.new("ImageLabel")
+shadow.Size = UDim2.new(1, 20, 1, 20)
+shadow.Position = UDim2.new(0, -10, 0, -10)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.8
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.ZIndex = -1
+shadow.Parent = mainFrame
+
+-- Create top bar with gradient
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 50)
+topBar.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+topBar.Parent = mainFrame
+
+local topBarCorner = Instance.new("UICorner")
+topBarCorner.CornerRadius = UDim.new(0, 15)
+topBarCorner.Parent = topBar
+
+-- Gradient for top bar
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 80, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 100, 255))
+})
+gradient.Rotation = 90
+gradient.Parent = topBar
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 1, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Text = "ZHub - Version Selector"
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 20
+titleLabel.Parent = topBar
+
+-- Subtitle
+local subtitleLabel = Instance.new("TextLabel")
+subtitleLabel.Size = UDim2.new(1, 0, 0, 20)
+subtitleLabel.Position = UDim2.new(0, 0, 0, 50)
+subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+subtitleLabel.Text = "Select your preferred version"
+subtitleLabel.Font = Enum.Font.Gotham
+subtitleLabel.TextSize = 14
+subtitleLabel.Parent = topBar
+
+-- Close button
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 35, 0, 35)
+closeButton.Position = UDim2.new(1, -40, 0.5, -17.5)
+closeButton.BackgroundColor3 = Color3.fromRGB(220, 60, 60)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Text = "X"
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 16
+closeButton.Parent = topBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = closeButton
+
+-- Create Scrolling Frame for scripts
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, -20, 1, -120)
+scrollFrame.Position = UDim2.new(0, 10, 0, 80)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 120)
+scrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+scrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.Always
+scrollFrame.Parent = mainFrame
+
+-- UIListLayout for scrolling frame
+local listLayout = Instance.new("UIListLayout")
+listLayout.Padding = UDim.new(0, 10)
+listLayout.Parent = scrollFrame
+
+-- Update scrolling frame canvas size
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
+end)
+
+-- Your ZHub scripts database (FIXED LOADSTRINGS)
+local scriptDatabase = {
+    {
+        Name = "ZHub V1.0",
+        Description = "Initial release - Basic features",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V1.0"))()',
+        Color = Color3.fromRGB(255, 100, 100),
+        Version = "1.0"
+    },
+    {
+        Name = "ZHub V2.0",
+        Description = "Major update - New UI system",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20v2.0"))()',
+        Color = Color3.fromRGB(255, 150, 100),
+        Version = "2.0"
+    },
+    {
+        Name = "ZHub V2.1",
+        Description = "Bug fixes and improvements",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V2.1"))()',
+        Color = Color3.fromRGB(255, 180, 100),
+        Version = "2.1"
+    },
+    {
+        Name = "ZHub V2.2",
+        Description = "Performance optimization",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V2.2"))()',
+        Color = Color3.fromRGB(255, 200, 100),
+        Version = "2.2"
+    },
+    {
+        Name = "ZHub V3.0",
+        Description = "Complete rewrite - Advanced features",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V3.0"))()',
+        Color = Color3.fromRGB(100, 255, 100),
+        Version = "3.0"
+    },
+    {
+        Name = "ZHub V3.1",
+        Description = "New scripts added",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V3.1"))()',
+        Color = Color3.fromRGB(100, 255, 150),
+        Version = "3.1"
+    },
+    {
+        Name = "ZHub V3.2",
+        Description = "UI enhancements",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V3.2"))()',
+        Color = Color3.fromRGB(100, 255, 200),
+        Version = "3.2"
+    },
+    {
+        Name = "ZHub V3.3",
+        Description = "Stability update",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V3.3"))()',
+        Color = Color3.fromRGB(100, 220, 255),
+        Version = "3.3"
+    },
+    {
+        Name = "ZHub V4.0",
+        Description = "Major feature overhaul",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V4.0"))()',
+        Color = Color3.fromRGB(100, 150, 255),
+        Version = "4.0"
+    },
+    {
+        Name = "ZHub V4.1",
+        Description = "Bug fixes and new games",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V4.1"))()',
+        Color = Color3.fromRGB(150, 100, 255),
+        Version = "4.1"
+    },
+    {
+        Name = "ZHub V5.0",
+        Description = "Next generation update",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V5.0"))()',
+        Color = Color3.fromRGB(200, 100, 255),
+        Version = "5.0"
+    },
+    {
+        Name = "ZHub V5.1",
+        Description = "Performance boost",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V5.1"))()',
+        Color = Color3.fromRGB(255, 100, 255),
+        Version = "5.1"
+    },
+    {
+        Name = "ZHub V5.2",
+        Description = "New executor support",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V5.2"))()',
+        Color = Color3.fromRGB(255, 100, 200),
+        Version = "5.2"
+    },
+    {
+        Name = "ZHub V5.3",
+        Description = "Final V5 series update",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V5.3"))()',
+        Color = Color3.fromRGB(255, 100, 150),
+        Version = "5.3"
+    },
+    {
+        Name = "ZHub V6.0",
+        Description = "Latest version - Ultimate features",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V6.0"))()',
+        Color = Color3.fromRGB(120, 80, 255),
+        Version = "6.0"
+    },
+}
+
+-- Function to create modern buttons
+local function createScriptButton(scriptData, index)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 70)
+    button.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    button.AutoButtonColor = false
+    button.Parent = scrollFrame
+    
+    -- Button corner rounding
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 10)
+    buttonCorner.Parent = button
+    
+    -- Left accent bar
+    local accent = Instance.new("Frame")
+    accent.Size = UDim2.new(0, 5, 0.8, 0)
+    accent.Position = UDim2.new(0, 0, 0.1, 0)
+    accent.BackgroundColor3 = scriptData.Color or Color3.fromRGB(120, 80, 255)
+    accent.BorderSizePixel = 0
+    accent.Parent = button
+    
+    local accentCorner = Instance.new("UICorner")
+    accentCorner.CornerRadius = UDim.new(0, 3)
+    accentCorner.Parent = accent
+    
+    -- Version badge
+    local versionBadge = Instance.new("Frame")
+    versionBadge.Size = UDim2.new(0, 50, 0, 20)
+    versionBadge.Position = UDim2.new(1, -60, 0.1, 0)
+    versionBadge.BackgroundColor3 = scriptData.Color or Color3.fromRGB(120, 80, 255)
+    versionBadge.Parent = button
+    
+    local versionCorner = Instance.new("UICorner")
+    versionCorner.CornerRadius = UDim.new(0, 6)
+    versionCorner.Parent = versionBadge
+    
+    local versionText = Instance.new("TextLabel")
+    versionText.Size = UDim2.new(1, 0, 1, 0)
+    versionText.BackgroundTransparency = 1
+    versionText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    versionText.Text = "v" .. scriptData.Version
+    versionText.Font = Enum.Font.GothamBold
+    versionText.TextSize = 12
+    versionText.Parent = versionBadge
+    
+    -- Script name label
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -70, 0.5, 0)
+    nameLabel.Position = UDim2.new(0, 15, 0, 5)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameLabel.Text = scriptData.Name
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextSize = 16
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.Parent = button
+    
+    -- Script description label
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(1, -70, 0.5, 0)
+    descLabel.Position = UDim2.new(0, 15, 0.5, 0)
+    descLabel.BackgroundTransparency = 1
+    descLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    descLabel.Text = scriptData.Description or "No description available"
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextSize = 12
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.Parent = button
+    
+    -- Execute icon
+    local executeIcon = Instance.new("TextLabel")
+    executeIcon.Size = UDim2.new(0, 35, 0, 35)
+    executeIcon.Position = UDim2.new(1, -45, 0.5, -17.5)
+    executeIcon.BackgroundTransparency = 1
+    executeIcon.TextColor3 = Color3.fromRGB(200, 200, 200)
+    executeIcon.Text = "▶"
+    executeIcon.Font = Enum.Font.GothamBold
+    executeIcon.TextSize = 16
+    executeIcon.Parent = button
+    
+    -- Hover effects
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 55)}):Play()
+        TweenService:Create(executeIcon, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(120, 80, 255)}):Play()
+        TweenService:Create(versionBadge, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(140, 100, 255)}):Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 45)}):Play()
+        TweenService:Create(executeIcon, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(200, 200, 200)}):Play()
+        TweenService:Create(versionBadge, TweenInfo.new(0.2), {BackgroundColor3 = scriptData.Color or Color3.fromRGB(120, 80, 255)}):Play()
+    end)
+    
+    -- Click effect and script execution
+    button.MouseButton1Click:Connect(function()
+        -- Click animation
+        TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(60, 60, 65)}):Play()
+        TweenService:Create(executeIcon, TweenInfo.new(0.1), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+        wait(0.1)
+        TweenService:Create(button, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(50, 50, 55)}):Play()
+        
+        -- Execute script and close menu
+        wait(0.2)
+        screenGui:Destroy()
+        
+        -- Execute the loadstring
+        local success, errorMessage = pcall(function()
+            loadstring(scriptData.Loadstring)()
+        end)
+        
+        if not success then
+            warn("Failed to execute " .. scriptData.Name .. ": " .. tostring(errorMessage))
+        end
+    end)
+    
+    return button
+end
+
+-- Create buttons for all ZHub versions
+for i, scriptData in ipairs(scriptDatabase) do
+    createScriptButton(scriptData, i)
+end
+
+-- Close button functionality
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Make window draggable
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+topBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- Instructions label
+local instructions = Instance.new("TextLabel")
+instructions.Size = UDim2.new(1, -20, 0, 30)
+instructions.Position = UDim2.new(0, 10, 1, -40)
+instructions.BackgroundTransparency = 1
+instructions.TextColor3 = Color3.fromRGB(150, 150, 150)
+instructions.Text = "Scroll to see all versions • Click to execute"
+instructions.Font = Enum.Font.Gotham
+instructions.TextSize = 12
+instructions.Parent = mainFrame
