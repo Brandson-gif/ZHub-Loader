@@ -220,6 +220,13 @@ local scriptDatabase = {
         Color = Color3.fromRGB(120, 80, 255),
         Version = "6.0"
     },
+    {
+        Name = "ZHub V6.1",
+        Description = "Latest update - Enhanced performance",
+        Loadstring = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Brandson-gif/ZHub-Aim/refs/heads/main/ZHub-Aim%20V6.1"))()',
+        Color = Color3.fromRGB(140, 90, 255),
+        Version = "6.1"
+    },
 }
 
 -- Function to create modern buttons
